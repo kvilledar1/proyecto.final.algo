@@ -1,0 +1,171 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+// imprimir la matriz aumentada con variables
+void printMatrixWithVariables(const vector<vector<double>>& matrix, const vector<char>& variables) {
+    int numero = matrix.size();
+    for (int k = 0; k < numero; k++) {
+        for (int v = 0; v < numero; v++) {
+            if (matrix[k][v] != 0) {
+                if (v > 0 && matrix[k][v] > 0) {
+                    cout << "+ ";
+                }
+                if (matrix[k][v] != 1 && matrix[k][v] != -1) {
+                    if (floor(matrix[k][v]) == matrix[k][v]) {
+                        cout << fixed << setprecision(0) << matrix[k][v];
+                    } else {
+                        cout << fixed << setprecision(3) << matrix[k][v];
+                    }
+                } else if (matrix[k][v] == -1) {
+                    cout << "-";
+                }
+                cout << variables[v] << " ";
+            }
+        }
+        if (floor(matrix[k][numero]) == matrix[k][numero]) {
+            cout << "= " << fixed << setprecision(0) << matrix[k][numero] << endl;
+        } else {
+            cout << "= " << fixed << setprecision(3) << matrix[k][numero] << endl;
+        }
+    }
+    cout << endl;
+}
+
+// Función para imprimir la matriz aumentada sin variables
+void printMatrix(const vector<vector<double>>& matrix) {
+    int numero = matrix.size();
+    for (int k = 0; k < numero; k++) {
+        for (int v = 0; v < numero + 1; v++) {
+            if (floor(matrix[k][v]) == matrix[k][v]) {
+                cout << fixed << setprecision(0) << matrix[k][v] << " ";// cero decimales a los numero enteros 
+            } else {
+                cout << fixed << setprecision(3) << matrix[k][v] << " "; //tres decimales
+            }
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+// Función que implementa la eliminación Gaussiana con pivoteo parcial escalonado
+void gaussianElimination(vector<vector<double>>& matrix) {
+    int numero = matrix.size();
+
+    // Eliminación Gaussiana
+    for (int k = 0; k < numero; k++) {
+        // Pivoteo parcial: encontrar la fila con el mayor elemento en la columna actual
+        double maxEl = abs(matrix[k][k]);
+        int maxRow = k;
+        for (int c = k + 1; c < numero; c++) {
+            if (abs(matrix[c][k]) > maxEl) {
+                maxEl = abs(matrix[c][k]);
+                maxRow = c;
+            }
+        }
+cout << "-----------------------------" << endl;
+        // Intercambiar filas para poner el mayor elemento en la posición diagonal
+        if (maxRow != k) {
+            cout << "Intercambiando filas " << k + 1 << " y " << maxRow + 1 << " debido al pivoteo." << endl;
+            for (int c = 0; c < numero + 1; c++) {
+                swap(matrix[k][c], matrix[maxRow][c]);
+            }
+            // Imprimir la matriz después del pivoteo
+            cout << "Matriz después del pivoteo (intercambio de filas):" << endl;
+            printMatrix(matrix);
+            
+            cout << "Matriz después del pivoteo (intercambio de filas ):" << endl;
+            printMatrix(matrix);
+        }
+
+        // Hacer todos los elementos debajo igual a 0
+        for (int c = k + 1; c < numero; c++) {
+            double l = -matrix[c][k] / matrix[k][k];
+            for (int v = k; v < numero + 1; v++) {
+                if (k == v) {
+                    matrix[c][v] = 0;
+                } else {
+                    matrix[c][v] += l * matrix[k][v];
+                }
+            }
+        }
+
+        // Imprimir la matriz después de cada paso de eliminación
+        cout << "Matriz después de paso " << k + 1 << " de eliminación:" << endl;
+        printMatrix(matrix);
+        cout << "-----------------------------" << endl;
+    }
+
+    // Resolución de las ecuaciones por sustitución hacia atrás
+    vector<double> solution(numero);
+    for (int k = numero - 1; k >= 0; k--) {
+        solution[k] = matrix[k][numero] / matrix[k][k];
+        for (int c = k - 1; c >= 0; c--) {
+            matrix[c][numero] -= matrix[c][k] * solution[k];
+        }
+    }
+
+    // Imprimir la solución con las variables
+    cout << "Solucion:" << endl;
+    vector<char> variables = {'x', 'y', 'z'}; // Asume que las variables son x, y, z; puedes agregar más si es necesario
+    for (int k = 0; k < numero; k++) {
+        if (floor(solution[k]) == solution[k]) {
+            cout << variables[k] << " = " << fixed << setprecision(0) << solution[k] << endl;
+        } else {
+            cout << variables[k] << " = " << fixed << setprecision(3) << solution[k] << endl;
+        }
+    }
+}
+
+int main() {
+    int numero;
+     cout << "\033[1;35m-------------------------------------------------------------------\033[0m" << endl;
+     cout << "        Bienvenido a METUMG Solucion del Pivoteo Parcial                           :" << endl;
+    cout << "\033[1;35m---------------------------------------------------------------------\033[0m" << endl;
+  
+  
+    // se le solicita al usuario ingresar el numero de incocnitas que desea 
+    cout << "Ingrese el numero de ecuaciones: ";
+    cin >> numero;
+   
+    
+
+    // Crear una matriz aumentada 
+    vector<vector<double>> matrix(numero, vector<double>(numero + 1));
+
+    // Crear un vector de variables
+    vector<char> variables = {'x', 'y', 'z'}; // Puedes agregar más variables si es necesario
+    
+    
+   
+
+    // Solicitar al usuario que ingrese los coeficientes de la matriz aumentada
+    cout << "por favor ingresa los coeficientes de la matriz :" << endl;
+    cout << "-----------------------------" << endl;
+    for (int k = 0; k < numero; k++) {
+        for (int v = 0; v < numero + 1; v++) {
+            cin >> matrix[k][v];
+        }
+    }
+
+    // matris original con las constantes 
+    cout << "\033[1;36m-------------------------\033[0m" << endl;
+    cout << "\033[1;36m SISTEMA DE ECUACIONES  \033[0m "<< endl;   
+    printMatrixWithVariables(matrix, variables);
+    cout << "\033[1;36m------------------------\033[0m" << endl;
+    
+    //  la matriz original 
+    cout << "\033[34m===============================\033[0m" << endl;
+    
+   cout << "\033[34m        MATRIZ ORIGINAL         \033[0m " << endl;
+    printMatrix(matrix);                           
+    cout << "\033[34m===============================\033[0m" << endl;
+
+    // Resolver el sistema de ecuaciones
+    gaussianElimination(matrix);
+
+    return 0;
+}
